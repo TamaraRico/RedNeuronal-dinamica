@@ -17,6 +17,9 @@ def robust(dat):
     r_scaler = preprocessing.RobustScaler()
     return r_scaler.fit_transform(dat)
 
+def DeNormalizacion(): # esto es algo asi pero le falta investigar
+    return preprocessing.inverse_transform()
+
 class Normalizacion():
     def __init__(self, normalizacion):
         self.normalizacion = normalizacion

@@ -1,79 +1,61 @@
 # -*- coding: utf-8 -*-
 
+from pretty_confusion_matrix import pp_matrix_from_data
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from sklearn.metrics import roc_curve
 import math
 
+def plot_linealRegression(Targets, Predicted):
+    r = np.corrcoef(Targets.T[0], Predicted.T[0])
+    plt.plot(Targets.T[0], Predicted.T[0], 'o')
+    m, b = np.polyfit(Targets.T[0], Predicted.T[0], 1)
+    plt.plot(Targets.T[0], m*Targets.T[0] + b)
+    plt.title("R={}".format(r[0][1]))
+    str = "{}*{}={}".format(round(m, 3), "Target",round(b, 3))
+    plt.ylabel(str)
+    plt.show()
 
-def initialize_parameters(layers):
-    # parameters = {}
-    w = []
-    b = []
-    no_layers = len(layers)
-    for n in range(1, no_layers):
-        w.append(np.random.randn(layers[n].neurons, layers[n - 1].neurons) * 0.01)
-        b.append(np.zeros(shape=(layers[n].neurons, 1)))
+def getClasses_Classification(Targets):
+    if Targets.shape[1] == 1:
+        obtainedClasses = np.zeros((Targets.shape[0],1))
+        classes_unique = np.unique(Targets)
+        for class_value in classes_unique:
+            obtainedClasses = np.hstack((obtainedClasses,
+                np.array(
+                    Targets == class_value, dtype=np.int32
+                    )
+            ))
+        return obtainedClasses[:,1:]
+    else:
+        return Targets
 
-        assert (w[n - 1].shape == (layers[n].neurons, layers[n - 1].neurons))
-        assert (b[n - 1].shape == (layers[n].neurons, 1))
+def plot_logisticRegression_Classification(Targets, Ph):
+    pp_matrix_from_data(np.argmax(Targets, axis = 1), np.argmax(Ph, axis = 1))
+    plt.figure()
+    color = iter(cm.rainbow(np.linspace(0,1,15)))
 
-        # parameters['W' + str(n)] = np.random.randn(layers[n], layers[n-1]) * 0.01
-        # parameters['b' + str(n)] = np.zeros(shape=(layers[n], 1))
+    for class_v in range(Targets.shape[1]):
+        fpr, tpr, none = roc_curve(Targets[:,class_v].reshape(-1,1), Ph[:,class_v].reshape(-1,1))
+        plt.plot(fpr, tpr, color=next(color), lw=1, label=f'Class {class_v}')
 
-        # assert(parameters['W' + str(n)].shape == (layers[n], layers[n-1]))
-        # assert(parameters['b' + str(n)].shape == (layers[n], 1))
+    plt.xlim([-0.1, 1.05])
+    plt.ylim([-0.1, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating characteristic')
+    plt.legend(loc="lower right")
+    plt.show()
 
-    return w, b
+def cross_entropy(y,yh):
+  loss =- np.sum(y * np.log(yh))
+  return loss/float(yh.shape[0])
 
-
-def RMSprop():
-    return
-
-
-def RMSprop_Optimization(X, Y, Alpha, Beta, num_iter, goal):
-    n, q = X.shape
-    size_theta = int(1 / 2 * (q + 1) * (q + 2))
-    theta = np.zeros((size_theta, n))
-    [A, thetaHat] = RMSprop(X, Y, theta, Alpha, Beta, num_iter, goal)
-    yh = A @ thetaHat
-    e = Y - yh
-    RMSE = rmse(Y, yh)
-
-    return thetaHat, RMSE, yh, e, A
-
-
-def tanh(Z):
-    return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
-
-
-def sigmoid(x):
-    return 1.0 / (1.0 + np.exp(-x))  # 1 vs 1.0
-
-
-def relu(x):
-    return np.maximum(0, x)
-
-
-def linear_forward(a, w, b):
-    n = np.dot(w, a) + b
-    assert (n.shape == (w.shape[0], a.shape[1]))
-    cache = (a, w, b)
-    return n, cache
-
-
-def activation_layer(prediction, activation):
-    if activation == "sigmoid":
-        A = sigmoid(prediction)
-    elif activation == "relu":
-        A = relu(prediction)
-    # assert (A.shape == (W.shape[0], A_prev.shape[1]))
-    return A
-
-
-def cross_entropy(y, yh):
-    m = yh.shape[1]
-    return (-1 / m) * np.sum(
-        np.multiply(yh, np.log(y)) + np.multiply((1 - yh), np.log(1 - y)))  # creo que y y yh estan al reves
-
+# def cross_entropy(y, yh):
+#     m = yh.shape[1]
+#     return (-1 / m) * np.sum(
+#         np.multiply(yh, np.log(y)) + np.multiply((1 - yh), np.log(1 - y)))  # creo que y y yh estan al reves
 
 def sse(y, yh):
     return np.sum((y - yh) ** 2)
@@ -88,7 +70,6 @@ def rmse(y, yh):
     RMSE = math.sqrt(MSE)
     return RMSE
 
-
 def cost_function(prediction, expected_output, function):
     if function == 'sse':
         cost = sse(prediction, expected_output)
@@ -96,13 +77,7 @@ def cost_function(prediction, expected_output, function):
         cost = mse(prediction, expected_output)
     elif function == 'rmse':
         cost = rmse(prediction, expected_output)
-    # cost = np.squeeze(cost)
+    elif function == 'cross_entropy':
+        cost = cross_entropy(prediction, expected_output)
     return cost
 
-
-def compute_cost(AL, Y):  # cross entropy loss
-    m = Y.shape[1]
-    cost = (1. / m) * (-np.dot(Y, np.log(AL + pow(10.0, -9)).T) - np.dot(1 - Y, np.log(1 - AL + pow(10.0, -9)).T))
-    cost = np.squeeze(cost)  # To make sure your cost's shape is what we expect (e.g. this turns [[17]] into 17).
-    assert (cost.shape == ())
-    return cost
