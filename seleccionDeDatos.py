@@ -23,15 +23,11 @@ def kfold(inputs, outputs):
     x_val, x_test, y_val, y_test = model_selection.train_test_split(x_test, y_test, train_size=validation)
     return x_train, y_train, x_val, y_val, x_test, y_test"""
 
-class Normalizacion():
-    def __init__(self, selection):
-        self.selection = selection
 
-    def seleccion(prediction, selection, inputs, outputs,train_size, val_size, test_size ):
-        if selection == "aleatorio":
-            x_train, y_train, x_val, y_val, x_test, y_test = aleatorio(inputs, outputs, train_size, val_size, test_size)
-        elif selection == "kfold":
-            x_train, y_train, x_val, y_val, x_test, y_test = kfold(inputs, outputs)
-        """elif selection == "biologico":
-            x_train, y_train, x_val, y_val, x_test, y_test = biologico(inputs, outputs, train_size, val_size, test_size)"""
-        return x_train, y_train, x_val, y_val, x_test, y_test
+def seleccion(selection, inputs, outputs, train_size, val_size, test_size):
+    if selection == "aleatorio":
+        x_train, y_train, x_val, y_val, x_test, y_test = aleatorio(inputs, outputs, train_size, val_size, test_size)
+    elif selection == "kfold":
+        x_train, y_train, x_val, y_val, x_test, y_test = kfold(inputs, outputs)
+    return x_train.T, y_train.T, x_val.T, y_val.T, x_test.T, y_test.T
+

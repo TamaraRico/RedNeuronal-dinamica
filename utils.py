@@ -80,4 +80,3 @@ def cost_function(prediction, expected_output, function):
     elif function == 'cross_entropy':
         cost = cross_entropy(prediction, expected_output)
     return cost
-
