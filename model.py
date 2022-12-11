@@ -74,7 +74,6 @@ def backpropagation_classification2(net, AL, e):
         derivadas.append(d)
         W = net.weightsbias[l].get('weights') - eta * (np.matmul(delta, ae.T))
         newWeights.append({'weights': W})
-        print(newWeights)
         weights.append(W)
 
     derivadas.reverse()
@@ -119,7 +118,8 @@ def forward_classification(net, inputs, target):
         n = np.matmul(net.weightsbias[l - 1].get('weights'), activatione)
         nets.append(n)
         if (l == (net.capas-1)):
-            activation = activation_layer(n, 'sigmoid')
+            activation = activation_layer(n, net.layers[l].activation_function)
+            activation = activation_layer(activation.T, 'softmax').T
         else:
             activation = activation_layer(n, net.layers[l].activation_function)
         a.append(activation)
@@ -129,18 +129,14 @@ def forward_classification(net, inputs, target):
     return a, nets, p, e
 
 def train_classification(net, epochs):
-    print('pesos iniciales: ', net.weightsbias)
     for epoch in range(epochs):
+        print("Epoca: ", epoch)
         a, n, p, e = forward_classification(net, net.x_train, net.y_train)  # plot p
         net.weightsbias, derivatives, w = backpropagation_classification2(net, a, e)
-        print('pesos backward: ', net.weightsbias)
         if epoch == 0:  # primera iteracion
             vt, net.weightsbias = RMSprop(net, w, derivatives, 0, 1e-8, 0.001, 0.9)
         else:
             vt, net.weightsbias = RMSprop(net, w, derivatives, vt, 1e-8, 0.001, 0.9)
-        print('activacion salida: ', a[net.capas-1])
-        print('funcion de costo: ', p)
-        print('pesos rmsprop: ', net.weightsbias)
     return a[net.capas-1]
 
 # Multicapa
@@ -225,8 +221,6 @@ class net:
                                                                                                  self.inputs,
                                                                                                  self.target, 0.50,
                                                                                                  0.25, 0.25)
-        print(np.shape(self.x_train))
-        print(np.shape(self.y_train))
 
         # Arreglo de capas
         self.layers = []

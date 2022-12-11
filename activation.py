@@ -23,9 +23,15 @@ def dtanh(x):
     return 1 - ((np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))) ** 2
 
 def softmax(x):
-    x  = np.subtract(x, np.max(x))        # prevent overflow
-    ex = np.exp(x)
-    return ex / np.sum(ex)
+    assert len(x.shape) == 2
+
+    s = np.max(x, axis=1)
+    s = s[:, np.newaxis]  # necessary step to do broadcasting
+    e_x = np.exp(x - s)
+    div = np.sum(e_x, axis=1)
+    div = div[:, np.newaxis]  # dito
+    res = e_x / div
+    return e_x / div
 
 def activation_layer(prediction, activation):
     if activation == "sigmoid":

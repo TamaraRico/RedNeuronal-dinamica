@@ -3,7 +3,6 @@
 import numpy as np
 import matplotlib as plt
 import pandas as pd
-
 import utils
 from normalizacion import *
 from weightAndBias import *
@@ -31,48 +30,31 @@ epochs = 100
 lr = 0.01
 batchsize = 1
 
-capas = [{'capas': N0, 'activacion': 'relu'},
-         {'capas': N1, 'activacion': 'relu'},
-         {'capas': N2, 'activacion': 'sigmoid'}]
-#print(capas)
+# file = pd.read_csv("price_dataset.dat", sep=" ", header=None)
+# inputs = np.array(file.iloc[:, :-1])
+# targets = np.array(file.iloc[:,-1:])
 
-#Multicapa
-#net = net([2, 10, 10], ['relu', 'relu', 'relu', 'sigmoid'], 'mse', xn, tn, lr=0.01)
-# net = net(capas, xn, tn, lr=0.01)
-#a, e = train(net, epochs)
-#print(a)
-#print(e)
+# xn = minmax(inputs)
+# tn = minmax(targets)
 
+# net = net([10, 10, 10], ['sigmoid', 'sigmoid', 'sigmoid', 'tanh'], 'mse', 'aleatorio', xn, tn, lr=0.001)
+# a = train(net, epochs)
+# print('targets: ', np.shape(net.y_train))
+# print('outputs: ', np.shape(a))
+# utils.plot_linealRegression(a.T, net.y_train.T)
 
 file = pd.read_csv("dermatology.dat", sep=" ", header=None)
 inputs = np.array(file.iloc[:, :-1])
-#print(inputs)
 Y = np.array(file.iloc[:,-1:])
-
 targets = getClasses_Classification(Y)
 
 xn = minmax(inputs)
 tn = minmax(targets)
 
-net = net([2, 3], ['relu', 'relu', 'sigmoid'], 'mse', 'aleatorio', xn, tn, lr=0.01)
-# net = net(capas, xn, tn, lr=0.01)
+net = net([10, 10], ['sigmoid', 'tanh', 'sigmoid'], 'mse', 'aleatorio', xn, tn, lr=0.01)
 a = train_classification(net, epochs)
-print('targets: ', np.shape(net.y_train))
-print('outputs: ', np.shape(a))
-#print(e)
+print('targets: ', net.y_train)
+print('outputs: ', a)
 
-utils.plot_linealRegression(net.y_train, a)
-utils.plot_logisticRegression_Classification(net.y_train, a)
-
-# plots
-
-# agregar las derivadas -> DONE
-# hacer una clase de las funciones
-# una funcion para elegir una tecnica para asignar los pesos
-# las funciones de normalizacion
-# como tomar los datos (lotes, mini lotes, estocastico)
-# back propagation -> DONE
-# tener la opcion sin normalizar o normalizar
-
-#Cuando se realiza la validacion por lo regular se admiten 6 fallas maximo (que sea peor), despues de eso para
-#Cuando el gradiente se acerca mucho a 0 o incrementa demasiado se tiene que hacer una parada temprana
+utils.plot_linealRegression(net.y_train.T, a.T)
+utils.plot_logisticRegression_Classification(net.y_train.T, a.T)

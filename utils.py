@@ -52,18 +52,11 @@ def cross_entropy(y,yh):
   loss =- np.sum(y * np.log(yh))
   return loss/float(yh.shape[0])
 
-# def cross_entropy(y, yh):
-#     m = yh.shape[1]
-#     return (-1 / m) * np.sum(
-#         np.multiply(yh, np.log(y)) + np.multiply((1 - yh), np.log(1 - y)))  # creo que y y yh estan al reves
-
 def sse(y, yh):
     return np.sum((y - yh) ** 2)
 
-
 def mse(y, yh):
     return np.square(np.subtract(y, yh)).mean()
-
 
 def rmse(y, yh):
     MSE = mse(y, yh)
