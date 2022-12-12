@@ -118,8 +118,10 @@ def forward_classification(net, inputs, target):
         n = np.matmul(net.weightsbias[l - 1].get('weights'), activatione)
         nets.append(n)
         if (l == (net.capas-1)):
-            activation = activation_layer(n, net.layers[l].activation_function)
-            activation = activation_layer(activation.T, 'softmax').T
+             #activation = activation_layer(n, net.layers[l].activation_function)
+            #activation = activation_layer(activation.T, 'softmax').T
+            activation = activation_layer(n.T, 'softmax').T
+            print("activation: ", activation)
         else:
             activation = activation_layer(n, net.layers[l].activation_function)
         a.append(activation)
